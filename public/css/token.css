@@ -1,0 +1,37 @@
+/* Design Tokens — Layout Editorial Minimalista (Recomendadores PT) */
+:root {
+  /* Superfícies e fundo quente editorial */
+  --bg-canvas: #F5F4EF;
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #F0EFE9;
+  --bg-info-tint: #EFF5FB;
+
+  /* Tipografia */
+  --font-serif: "Newsreader", "Iowan Old Style", "Georgia", "Times New Roman", serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+
+  /* Cores de texto e bordas */
+  --text-primary: #141D26;
+  --text-secondary: #5C646D;
+  --text-muted: #8A9199;
+  --border-subtle: #E4E2DA;
+  --border-strong: #CFCBC0;
+
+  /* Acentos e estados */
+  --accent-dark: #141D26;
+  --accent-dark-hover: #222F3D;
+  --accent-gold: #B4691E;
+  --accent-blue-bg: #E0EEFA;
+  --accent-blue-text: #1E5A8A;
+  --accent-amber-bg: #FDF1D6;
+  --accent-amber-text: #9A5B13;
+  --accent-green-bg: #DCFCE7;
+  --accent-green-text: #15803D;
+
+  /* Medidas */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-pill: 9999px;
+  --container-max: 1040px;
+  --transition-fast: 150ms ease;
+}

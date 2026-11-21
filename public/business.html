@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Café Oriente — Recomendadores</title>
+  <link rel="stylesheet" href="css/token.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <a href="index.html" class="brand">Recomendadores</a>
+      <nav class="nav-right">
+        <a href="index.html#negocios">Negócios</a>
+        <a href="login.html">Entrar</a>
+        <a href="register.html" class="btn btn-primary btn-sm">Criar conta</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding-block:3rem;">
+    <div id="biz-root"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>Recomendadores — pagamentos processados manualmente nesta fase.</span>
+      <span>Comissão fixa de 5% · janela de reembolso de 30 dias</span>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { store } from "./js/store.js";
+    import { formatEur, showToast } from "./js/ui.js";
+
+    const params = new URLSearchParams(location.search);
+    const biz = store.getBusiness(params.get("b") || "cafe-oriente");
+    const refHandle = params.get("ref") || "rita-nogueira";
+    const refUser = store.getRecommender(refHandle);
+    const commissionEur = biz.priceEur * 0.05;
+
+    document.title = `${biz.name} — Recomendadores`;
+
+    document.getElementById("biz-root").innerHTML = `
+      <div class="grid-2" style="align-items:start;gap:2.5rem;">
+        <div>
+          <div class="text-muted" style="font-size:0.75rem;">${biz.category} · ${biz.city}</div>
+          <h1 style="font-size:2.25rem;margin:0.2rem 0 0.5rem;">${biz.name}</h1>
+          <p class="text-secondary" style="margin:0 0 1.25rem;font-size:1rem;">${biz.tagline}</p>
+
+          <div style="border-top:1px solid var(--border-subtle);padding-top:1.1rem;margin-bottom:2rem;">
+            ${biz.description.map((p) => `<p class="text-secondary" style="font-size:0.875rem;margin:0 0 0.85rem;">${p}</p>`).join("")}
+          </div>
+
+          <h2 style="font-size:1.25rem;margin:0 0 0.85rem;">Quem já comprou e recomenda (${biz.testimonials.length})</h2>
+          <div style="display:flex;flex-direction:column;gap:0.75rem;">
+            ${biz.testimonials.map((t) => `
+              <div class="card card-pad" style="display:flex;gap:0.75rem;align-items:flex-start;">
+                <span class="avatar avatar-sm">${t.initials}</span>
+                <div>
+                  <div style="font-weight:600;font-size:0.8125rem;margin-bottom:0.2rem;">${t.name}</div>
+                  <p class="serif text-secondary" style="margin:0;font-size:0.95rem;">“${t.quote}”</p>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+
+        <!-- Cartão de compra atribuída -->
+        <div class="card card-pad">
+          <div style="background:var(--bg-info-tint);color:var(--accent-blue-text);padding:0.75rem 0.9rem;border-radius:var(--radius-sm);font-size:0.8125rem;margin-bottom:1.1rem;">
+            Estás a comprar pela recomendação de <strong>${refUser.name}</strong>.<br/>
+            O preço é o mesmo; <strong class="tabular">${formatEur(commissionEur)}</strong> dessa venda vão para ${refUser.name.split(" ")[0]}.
+          </div>
+
+          <div class="text-muted" style="font-size:0.6875rem;letter-spacing:0.04em;">${biz.productName}</div>
+          <div class="serif tabular" style="font-size:1.85rem;margin:0.15rem 0 1.1rem;">${formatEur(biz.priceEur)}</div>
+
+          <form id="checkout-form" style="display:flex;flex-direction:column;gap:0.85rem;">
+            <div class="field">
+              <label for="buyer-name">Nome</label>
+              <input id="buyer-name" type="text" class="input" placeholder="Como te chamas" required />
+            </div>
+            <div class="field">
+              <label for="buyer-email">Email</label>
+              <input id="buyer-email" type="email" class="input" placeholder="tu@exemplo.pt" required />
+              <span class="text-muted" style="font-size:0.7rem;">Usamos o email para enviar os dados de pagamento.</span>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:0.25rem;">
+              Comprar · ${formatEur(biz.priceEur)}
+            </button>
+          </form>
+
+          <div style="border-top:1px solid var(--border-subtle);margin-top:1.1rem;padding-top:0.85rem;font-size:0.8125rem;display:flex;flex-direction:column;gap:0.35rem;">
+            <div style="display:flex;justify-content:space-between;"><span class="text-secondary">pagas</span><strong class="tabular">${formatEur(biz.priceEur)}</strong></div>
+            <div style="display:flex;justify-content:space-between;"><span class="text-secondary">comissão do recomendador (5%)</span><strong class="tabular text-gold">${formatEur(commissionEur)}</strong></div>
+            <p class="text-muted" style="font-size:0.7rem;margin:0.4rem 0 0;">
+              Pagamento combinado por email nesta fase. Reembolso possível até 30 dias.
+            </p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("checkout-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      showToast("Pedido registado no protótipo (estado Pendente até confirmação do negócio).");
+    });
+  </script>
+</body>
+</html>

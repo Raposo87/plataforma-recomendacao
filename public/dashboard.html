@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>O meu painel — Recomendadores</title>
+  <link rel="stylesheet" href="css/token.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <a href="index.html" class="brand">Recomendadores</a>
+      <nav class="nav-right">
+        <select id="view-switcher" class="select" style="height:32px;padding-block:0;width:auto;font-size:0.8125rem;" aria-label="Alternar vista">
+          <option value="recommender">Painel Recomendador (Rita)</option>
+          <option value="business">Painel Negócio (Café Oriente)</option>
+          <option value="ledger">Ledger de Comissões (Café Oriente)</option>
+        </select>
+        <a href="profile.html?u=rita-nogueira">A minha página</a>
+        <a href="index.html">Sair</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding-block:2.5rem;" id="panel-root"></main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>Recomendadores — pagamentos processados manualmente nesta fase.</span>
+      <span>Comissão fixa de 5% · janela de reembolso de 30 dias</span>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { store } from "./js/store.js";
+    import { copyText, formatEur, showToast, statusBadgeClass } from "./js/ui.js";
+
+    const params = new URLSearchParams(location.search);
+    const switcher = document.getElementById("view-switcher");
+    if (["recommender", "business", "ledger"].includes(params.get("view"))) {
+      switcher.value = params.get("view");
+    }
+
+    let ledgerFilter = "Todas";
+
+    function renderRecommenderPanel() {
+      const rec = store.getRecommender("rita-nogueira");
+      const root = document.getElementById("panel-root");
+
+      root.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+          <div style="display:flex;align-items:center;gap:0.85rem;">
+            <span class="avatar" style="width:44px;height:44px;">${rec.initials}</span>
+            <div>
+              <h1 style="font-size:1.5rem;margin:0;">${rec.name}</h1>
+              <div class="text-muted" style="font-size:0.75rem;">/u/${rec.handle}</div>
+            </div>
+          </div>
+          <p class="text-muted" style="font-size:0.75rem;max-width:300px;margin:0;">
+            A comissão é 5% de cada venda atribuída. Fica retida 30 dias e depois passa a “a pagar”.
+          </p>
+        </div>
+
+        <!-- 4 KPIs principais -->
+        <div class="grid-4" style="margin-bottom:0.85rem;">
+          <div class="card card-pad"><div class="text-muted" style="font-size:0.75rem;">Cliques</div><div class="serif tabular" style="font-size:1.5rem;">70</div><div class="text-muted" style="font-size:0.7rem;">3 links activos</div></div>
+          <div class="card card-pad"><div class="text-muted" style="font-size:0.75rem;">Conversões</div><div class="serif tabular" style="font-size:1.5rem;">6</div><div class="text-muted" style="font-size:0.7rem;">taxa de 8,6%</div></div>
+          <div class="card card-pad"><div class="text-muted" style="font-size:0.75rem;">Ganhos a 5%</div><div class="serif tabular" style="font-size:1.5rem;">32,50 €</div><div class="text-muted" style="font-size:0.7rem;">tudo o que já geraste</div></div>
+          <div class="card card-pad"><div class="text-muted" style="font-size:0.75rem;">Já recebido</div><div class="serif tabular" style="font-size:1.5rem;">7,25 €</div><div class="text-muted" style="font-size:0.7rem;">8,65 € a pagar · 9,35 € retido</div></div>
+        </div>
+
+        <!-- 4 estados -->
+        <div class="grid-4" style="margin-bottom:2rem;">
+          <div class="card" style="padding:0.85rem 1rem;"><div class="text-muted" style="font-size:0.7rem;">Pendente</div><strong class="tabular">7,25 €</strong><div class="text-muted" style="font-size:0.68rem;">1 comissão · por confirmar pelo negócio</div></div>
+          <div class="card" style="padding:0.85rem 1rem;"><div class="text-muted" style="font-size:0.7rem;">Retida</div><strong class="tabular">9,35 €</strong><div class="text-muted" style="font-size:0.68rem;">2 comissões · na janela de 30 dias</div></div>
+          <div class="card" style="padding:0.85rem 1rem;"><div class="text-muted" style="font-size:0.7rem;">A pagar</div><strong class="tabular">8,65 €</strong><div class="text-muted" style="font-size:0.68rem;">2 comissões · pronta a receber</div></div>
+          <div class="card" style="padding:0.85rem 1rem;"><div class="text-muted" style="font-size:0.7rem;">Paga</div><strong class="tabular">7,25 €</strong><div class="text-muted" style="font-size:0.68rem;">1 comissão · já transferida</div></div>
+        </div>
+
+        <!-- As minhas recomendações -->
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.85rem;">
+          <h2 style="font-size:1.25rem;margin:0;">As minhas recomendações</h2>
+          <span class="text-muted" style="font-size:0.75rem;">Um link por negócio. Partilha-o onde quiseres.</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:0.85rem;margin-bottom:2rem;">
+          ${rec.recommendations.map((item) => {
+            const fullUrl = `${location.origin}/r/${item.linkSlug}`;
+            return `
+              <div class="card card-pad">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap;">
+                  <div style="max-width:560px;">
+                    <div><strong>${item.businessName}</strong> <span class="text-muted" style="font-size:0.75rem;">${item.category} · ${item.city}</span></div>
+                    <p class="text-secondary" style="font-size:0.8125rem;margin:0.35rem 0 0;">“${item.quote}”</p>
+                  </div>
+                  <div style="display:flex;gap:1.25rem;text-align:right;font-size:0.8125rem;">
+                    <div><div class="text-muted" style="font-size:0.68rem;">cliques</div><strong class="tabular">${item.clicks}</strong></div>
+                    <div><div class="text-muted" style="font-size:0.68rem;">vendas</div><strong class="tabular">${item.sales}</strong></div>
+                    <div><div class="text-muted" style="font-size:0.68rem;">ganhos</div><strong class="tabular text-gold">${formatEur(item.earningsEur)}</strong></div>
+                  </div>
+                </div>
+                <div style="display:flex;gap:0.5rem;align-items:center;margin-top:0.85rem;">
+                  <input type="text" class="input" readonly value="${fullUrl}" style="background:var(--bg-canvas);font-size:0.75rem;" />
+                  <button type="button" class="btn btn-secondary btn-sm copy-link" data-url="${fullUrl}">Copiar link</button>
+                </div>
+                <div style="display:flex;gap:1rem;margin-top:0.65rem;font-size:0.75rem;" class="text-muted">
+                  <a href="business.html?b=${item.businessSlug}" class="link-underline">Ver página do negócio</a>
+                  <button type="button" class="link-underline del-rec" data-id="${item.id}">Remover da minha página</button>
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+
+        <!-- Recomendar um negócio -->
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.75rem;">
+          <h2 style="font-size:1.25rem;margin:0;">Recomendar um negócio</h2>
+          <span class="text-muted" style="font-size:0.75rem;">Só negócios por onde já passaste.</span>
+        </div>
+        <form id="new-rec-form" class="card card-pad" style="display:grid;grid-template-columns:1fr 2fr auto;gap:0.75rem;align-items:end;margin-bottom:2rem;">
+          <div class="field">
+            <label for="sel-biz">Negócio</label>
+            <select id="sel-biz" class="select">
+              ${store.listBusinesses().map((b) => `<option value="${b.slug}">${b.name}</option>`).join("")}
+            </select>
+          </div>
+          <div class="field">
+            <label for="inp-quote">Porque recomendas</label>
+            <input id="inp-quote" type="text" class="input" placeholder="Vou lá desde 2019 e nunca mudei de sítio..." required />
+          </div>
+          <button type="submit" class="btn btn-primary">Adicionar</button>
+        </form>
+
+        <!-- As minhas comissões -->
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.75rem;">
+          <h2 style="font-size:1.25rem;margin:0;">As minhas comissões</h2>
+          <span class="text-muted" style="font-size:0.75rem;">O que cada venda te deu e em que estado está.</span>
+        </div>
+        <div class="card table-wrap" style="margin-bottom:2rem;">
+          <table>
+            <thead><tr><th>Data</th><th>Negócio</th><th>Venda</th><th>Comissão</th><th>Estado</th><th>Pagamento</th></tr></thead>
+            <tbody>
+              ${rec.commissionsHistory.map((c) => `
+                <tr>
+                  <td class="tabular text-secondary">${c.date}</td>
+                  <td><strong>${c.business}</strong></td>
+                  <td class="tabular">${formatEur(c.saleEur)}</td>
+                  <td class="tabular"><strong>${formatEur(c.commissionEur)}</strong></td>
+                  <td><span class="badge ${statusBadgeClass(c.status)}">${c.status}</span></td>
+                  <td class="text-muted" style="font-size:0.75rem;">${c.note}</td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagamentos recebidos -->
+        <h2 style="font-size:1.25rem;margin:0 0 0.75rem;">Pagamentos recebidos</h2>
+        <div class="card card-pad" style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <strong class="tabular">${formatEur(7.25)}</strong> <span class="text-muted" style="font-size:0.75rem;">· 1 comissão</span>
+            <div class="text-muted" style="font-size:0.7rem;">${rec.payoutMethod}</div>
+          </div>
+          <span class="text-muted tabular" style="font-size:0.75rem;">09/10/2026</span>
+        </div>
+      `;
+
+      root.querySelectorAll(".copy-link").forEach((b) => b.addEventListener("click", () => copyText(b.dataset.url)));
+      root.querySelectorAll(".del-rec").forEach((b) => b.addEventListener("click", () => {
+        store.removeRecommendation("rita-nogueira", b.dataset.id);
+        render();
+      }));
+      document.getElementById("new-rec-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        store.addRecommendation("rita-nogueira", {
+          businessSlug: document.getElementById("sel-biz").value,
+          quote: document.getElementById("inp-quote").value,
+        });
+        showToast("Recomendação adicionada");
+        render();
+      });
+    }
+
+    function renderBusinessPanel() {
+      const biz = store.getBusiness("cafe-oriente");
+      const root = document.getElementById("panel-root");
+
+      root.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+          <div>
+            <h1 style="font-size:1.75rem;margin:0;">${biz.name}</h1>
+            <div class="text-muted" style="font-size:0.75rem;">${biz.category} · ${biz.city}</div>
+          </div>
+          <div style="display:flex;gap:0.5rem;">
+            <a href="business.html?b=${biz.slug}" class="btn btn-secondary">Ver página pública</a>
+            <button type="button" id="go-ledger-btn" class="btn btn-primary">Ledger de comissões</button>
+          </div>
+        </div>
+
+        <div class="grid-4" style="margin-bottom:2rem;">
+          <div class="card card-pad"><div class="text-muted" style="font-size:0.75rem;">Cliques recebidos</div><div class="serif tabular" style="font-size:1.5rem;">${biz.metrics.clicks}</div><div class="text-muted" style="font-size:0.7rem;">${biz.metrics.recommendersCount} recomendadores</div></div>
+          <div class="card card-pad"><div class="text-muted" style="font-size:0.75rem;">Compras</div><div class="serif tabular" style="font-size:1.5rem;">${biz.metrics.purchases}</div><div class="text-muted" style="font-size:0.7rem;">${biz.metrics.attributedPurchases} por recomendação · ${biz.metrics.conversionRate} de conversão</div></div>
+          <div class="card card-pad"><div class="text-muted" style="font-size:0.75rem;">Comissão devida</div><div class="serif tabular" style="font-size:1.5rem;">${formatEur(biz.metrics.commissionDueEur)}</div><div class="text-muted" style="font-size:0.7rem;">${formatEur(biz.metrics.commissionReadyEur)} já em condições de pagar</div></div>
+          <div class="card card-pad"><div class="text-muted" style="font-size:0.75rem;">Já pago</div><div class="serif tabular" style="font-size:1.5rem;">${formatEur(biz.metrics.alreadyPaidEur)}</div><div class="text-muted" style="font-size:0.7rem;">comissões liquidadas</div></div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.75rem;">
+          <h2 style="font-size:1.25rem;margin:0;">Desempenho por recomendador</h2>
+          <span class="text-muted" style="font-size:0.75rem;">Ordenado por compras trazidas.</span>
+        </div>
+        <div class="card table-wrap" style="margin-bottom:2rem;">
+          <table>
+            <thead><tr><th>Recomendador</th><th>Cliques</th><th>Compras</th><th>Receita trazida</th><th>Comissão devida</th><th>Pago</th><th></th></tr></thead>
+            <tbody>
+              ${biz.recommenderPerformance.map((r) => `
+                <tr>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:0.65rem;">
+                      <span class="avatar avatar-sm">${r.initials}</span>
+                      <div><strong>${r.name}</strong><div class="text-muted" style="font-size:0.7rem;">${r.method}</div></div>
+                    </div>
+                  </td>
+                  <td class="tabular">${r.clicks}</td>
+                  <td class="tabular">${r.sales}</td>
+                  <td class="tabular">${formatEur(r.revenueEur)}</td>
+                  <td class="tabular text-gold"><strong>${formatEur(r.dueEur)}</strong></td>
+                  <td class="tabular">${formatEur(r.paidEur)}</td>
+                  <td style="text-align:right;">
+                    ${r.readyToPayEur > 0
+                      ? `<button type="button" class="btn btn-secondary btn-sm pay-rec-btn">Marcar ${formatEur(r.readyToPayEur)} como pago</button>`
+                      : `<span class="text-muted" style="font-size:0.75rem;">nada a pagar</span>`}
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.75rem;">
+          <h2 style="font-size:1.25rem;margin:0;">Compras recentes</h2>
+          <span class="text-muted" style="font-size:0.75rem;">As últimas compras registadas.</span>
+        </div>
+        <div class="card" style="margin-bottom:2rem;">
+          ${biz.recentPurchases.map((p) => `
+            <div style="padding:0.85rem 1.25rem;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;gap:1rem;">
+              <div>
+                <strong>${p.customer}</strong> <span class="text-muted" style="font-size:0.8125rem;">· ${p.item}</span>
+                <div class="text-muted" style="font-size:0.75rem;">${p.via}</div>
+              </div>
+              <div style="text-align:right;">
+                <strong class="tabular">${formatEur(p.priceEur)}</strong>
+                <div class="text-muted tabular" style="font-size:0.7rem;">${p.date}</div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+
+      document.getElementById("go-ledger-btn").addEventListener("click", () => {
+        switcher.value = "ledger";
+        render();
+      });
+      root.querySelectorAll(".pay-rec-btn").forEach((b) => b.addEventListener("click", () => {
+        showToast("Use o Ledger de comissões para registar a referência de transferência.");
+      }));
+    }
+
+    function renderLedgerPanel() {
+      const biz = store.getBusiness("cafe-oriente");
+      const root = document.getElementById("panel-root");
+      const all = biz.ledgerMovements;
+      const counts = {
+        Todas: all.length,
+        Pendente: all.filter((m) => m.status === "Pendente").length,
+        Retida: all.filter((m) => m.status === "Retida").length,
+        "A pagar": all.filter((m) => m.status === "A pagar").length,
+        Paga: all.filter((m) => m.status === "Paga").length,
+        Cancelada: all.filter((m) => m.status === "Cancelada").length,
+      };
+      const visible = ledgerFilter === "Todas" ? all : all.filter((m) => m.status === ledgerFilter);
+
+      root.innerHTML = `
+        <button type="button" id="back-biz-btn" class="text-muted" style="font-size:0.75rem;margin-bottom:0.5rem;">← Painel do negócio</button>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;margin-bottom:1.25rem;">
+          <div>
+            <h1 style="font-size:1.75rem;margin:0 0 0.35rem;">Ledger de comissões</h1>
+            <p class="text-secondary" style="font-size:0.8125rem;margin:0;max-width:520px;">
+              Cada comissão passa por quatro estados. Confirmas a compra, a comissão fica retida durante a janela de reembolso de 30 dias, depois entra em “a pagar” e marcas como paga quando transferires.
+            </p>
+          </div>
+          <button type="button" id="release-windows-btn" class="btn btn-secondary">Libertar janelas fechadas</button>
+        </div>
+
+        <div class="grid-4" style="margin-bottom:1.25rem;">
+          <div class="card card-pad"><div class="text-muted" style="font-size:0.7rem;">1 Pendente</div><div class="serif tabular" style="font-size:1.35rem;">2,80 €</div><div class="text-muted" style="font-size:0.7rem;">Compra registada. O negócio tem de confirmar o pagamento.</div></div>
+          <div class="card card-pad"><div class="text-muted" style="font-size:0.7rem;">2 Retida</div><div class="serif tabular" style="font-size:1.35rem;">1,40 €</div><div class="text-muted" style="font-size:0.7rem;">Confirmada e retida durante a janela de reembolso de 30 dias.</div></div>
+          <div class="card card-pad"><div class="text-muted" style="font-size:0.7rem;">3 A pagar</div><div class="serif tabular" style="font-size:1.35rem;">2,80 €</div><div class="text-muted" style="font-size:0.7rem;">Janela de reembolso fechada. Pronta para pagamento.</div></div>
+          <div class="card card-pad"><div class="text-muted" style="font-size:0.7rem;">4 Paga</div><div class="serif tabular" style="font-size:1.35rem;">2,80 €</div><div class="text-muted" style="font-size:0.7rem;">Paga ao recomendador.</div></div>
+        </div>
+
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:1.5rem;">
+          ${Object.entries(counts).map(([label, count]) => `
+            <button type="button" class="btn btn-sm ${ledgerFilter === label ? "btn-primary" : "btn-secondary"} filter-pill" data-filter="${label}">
+              ${label} ${count}
+            </button>
+          `).join("")}
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:0.75rem;">
+          <h2 style="font-size:1.25rem;margin:0;">Movimentos</h2>
+          <span class="text-muted" style="font-size:0.75rem;">${visible.length} linhas</span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+          ${visible.map((m) => `
+            <div class="card card-pad">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:0.85rem;">
+                <div>
+                  <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <strong>${m.recommender}</strong>
+                    <span class="badge ${statusBadgeClass(m.status)}">${m.status}</span>
+                  </div>
+                  <div class="text-muted" style="font-size:0.75rem;margin-top:0.15rem;">
+                    ${biz.name} · ${m.customerEmail} · ref. ${m.id}<br/>
+                    compra de ${formatEur(m.saleEur)} em ${m.date}${m.note ? ` · ${m.note}` : ""}
+                  </div>
+                </div>
+                <div style="text-align:right;">
+                  <strong class="tabular" style="font-size:1rem;">${formatEur(m.commissionEur)}</strong>
+                  <div class="text-muted" style="font-size:0.68rem;">5% da venda</div>
+                </div>
+              </div>
+
+              <div style="border-top:1px solid var(--border-subtle);padding-top:0.75rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;font-size:0.75rem;">
+                <div class="text-muted">1 Pendente &nbsp;→&nbsp; 2 Retida &nbsp;→&nbsp; 3 A pagar &nbsp;→&nbsp; 4 Paga</div>
+                <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                  ${m.status === "Pendente" ? `
+                    <button type="button" class="btn btn-primary btn-sm act-confirm" data-id="${m.id}">Confirmar pagamento da compra</button>
+                    <button type="button" class="btn btn-secondary btn-sm act-refund" data-id="${m.id}">Reembolsada</button>
+                  ` : ""}
+                  ${m.status === "Retida" ? `
+                    <span class="text-muted">em janela de reembolso — nada a fazer</span>
+                    <button type="button" class="btn btn-secondary btn-sm act-refund" data-id="${m.id}">Reembolsada</button>
+                  ` : ""}
+                  ${m.status === "A pagar" ? `
+                    <input type="text" class="input ref-input" data-id="${m.id}" placeholder="Referência da transferência" style="height:32px;width:185px;font-size:0.75rem;" />
+                    <button type="button" class="btn btn-primary btn-sm act-pay" data-id="${m.id}">Marcar como pago</button>
+                  ` : ""}
+                  ${m.status === "Paga" ? `<span class="text-muted">${m.method || "Liquidada"}</span>` : ""}
+                </div>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+
+      document.getElementById("back-biz-btn").addEventListener("click", () => {
+        switcher.value = "business";
+        render();
+      });
+      document.getElementById("release-windows-btn").addEventListener("click", () => {
+        showToast("Verificação de janelas de 30 dias executada.");
+      });
+      root.querySelectorAll(".filter-pill").forEach((b) => b.addEventListener("click", () => {
+        ledgerFilter = b.dataset.filter;
+        render();
+      }));
+      root.querySelectorAll(".act-confirm").forEach((b) => b.addEventListener("click", () => {
+        store.updateLedgerStatus("cafe-oriente", b.dataset.id, "Retida");
+        showToast("Compra confirmada — comissão em janela de 30 dias.");
+        render();
+      }));
+      root.querySelectorAll(".act-refund").forEach((b) => b.addEventListener("click", () => {
+        store.updateLedgerStatus("cafe-oriente", b.dataset.id, "Cancelada");
+        showToast("Comissão marcada como reembolsada/cancelada.");
+        render();
+      }));
+      root.querySelectorAll(".act-pay").forEach((b) => b.addEventListener("click", () => {
+        const input = root.querySelector(`.ref-input[data-id="${b.dataset.id}"]`);
+        store.updateLedgerStatus("cafe-oriente", b.dataset.id, "Paga", input ? input.value.trim() : "");
+        showToast("Comissão marcada como paga.");
+        render();
+      }));
+    }
+
+    function render() {
+      if (switcher.value === "business") renderBusinessPanel();
+      else if (switcher.value === "ledger") renderLedgerPanel();
+      else renderRecommenderPanel();
+    }
+
+    switcher.addEventListener("change", render);
+    window.addEventListener("DOMContentLoaded", render);
+  </script>
+</body>
+</html>

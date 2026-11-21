@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recomendadores — Recomenda os negócios que já usaste</title>
+  <link rel="stylesheet" href="css/token.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/home.css" />
+</head>
+<body>
+  <header class="navbar home-navbar">
+    <div class="container navbar-inner">
+      <a href="index.html" class="brand home-brand"><span class="brand-mark">R</span><span>Recomendadores</span></a>
+      <nav class="nav-right">
+        <a href="#negocios">Negócios</a>
+        <a href="login.html">Entrar</a>
+        <a href="register.html" class="btn btn-primary btn-sm">Criar conta <span aria-hidden="true">→</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="home-hero">
+      <div class="container hero-layout">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-dot"></span> Recomendações reais, negócios locais</p>
+          <h1>Recomenda o que é bom. <span>Ganha por isso.</span></h1>
+          <p class="hero-description">
+            Partilha os negócios que já conheces e confias. Quando alguém compra através da tua recomendação, recebes 5% — sem aumentar o preço para quem compra.
+          </p>
+          <div class="hero-actions">
+            <a href="register.html?role=recommender" class="btn btn-primary hero-button">Quero recomendar <span aria-hidden="true">→</span></a>
+            <a href="register.html?role=business" class="btn btn-secondary hero-button">Tenho um negócio</a>
+          </div>
+          <div class="hero-trust"><span aria-hidden="true">✓</span> Sem metas, sem contratos, sem custos para começar</div>
+        </div>
+
+        <div class="hero-showcase" aria-label="Exemplo de recomendação e comissão">
+          <div class="showcase-orbit showcase-orbit-one"></div>
+          <div class="showcase-orbit showcase-orbit-two"></div>
+          <div class="recommendation-card">
+            <div class="recommendation-label"><span class="label-dot"></span> RECOMENDAÇÃO DE CONFIANÇA</div>
+            <div class="recommendation-person">
+              <span class="avatar avatar-lg">RN</span>
+              <div><strong>Rita Nogueira</strong><span>Barreiro · recomenda Oficina Silva</span></div>
+            </div>
+            <blockquote class="recommendation-quote">
+              “O Hélio ouviu o barulho, disse-me o preço antes de mexer e ficou no preço.”
+            </blockquote>
+            <div class="recommendation-business"><span>OFICINA SILVA</span><span>BARREIRO</span></div>
+          </div>
+          <div class="commission-card">
+            <div class="commission-heading"><span class="commission-icon" aria-hidden="true">↗</span><span>Quando alguém compra</span></div>
+            <strong>7,25 <small>€</small></strong>
+            <span class="commission-caption">para ti, numa venda de 145 €</span>
+            <div class="commission-progress"><span></span></div>
+            <div class="commission-foot"><span>Comissão</span><b>5%</b></div>
+          </div>
+          <div class="showcase-sticker"><span>preço igual</span><strong>para todos</strong></div>
+        </div>
+      </div>
+      <div class="container hero-stats">
+        <div><strong>5</strong><span>negócios locais</span></div>
+        <div><strong>4</strong><span>pessoas a recomendar</span></div>
+        <div><strong>15,40 €</strong><span>já pagos em comissões</span></div>
+      </div>
+    </section>
+
+    <section class="container home-section how-section">
+      <div class="section-heading">
+        <div><p class="eyebrow">Simples e transparente</p><h2>Como funciona</h2></div>
+        <p>Uma boa recomendação começa com uma experiência real.</p>
+      </div>
+      <div class="steps-grid">
+        <article class="step-card">
+          <span class="step-number">01</span>
+          <div class="step-icon" aria-hidden="true">✳</div>
+          <h3>Recomenda</h3>
+          <p>Escolhe um negócio que já usaste e escreve, pelas tuas palavras, porque confias nele.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-number">02</span>
+          <div class="step-icon" aria-hidden="true">↗</div>
+          <h3>Partilha o teu link</h3>
+          <p>Recebes um link pessoal para enviares a quem te pede uma sugestão ou publicares na tua página.</p>
+        </article>
+        <article class="step-card">
+          <span class="step-number">03</span>
+          <div class="step-icon" aria-hidden="true">€</div>
+          <h3>Recebe comissão</h3>
+          <p>Recebes 5% quando há uma venda. A comissão é libertada após a janela de reembolso de 30 dias.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="negocios" class="business-section">
+      <div class="container">
+        <div class="section-heading business-heading">
+          <div><p class="eyebrow">Feitos perto de ti</p><h2>Negócios para conhecer</h2></div>
+          <a href="business.html?b=cafe-oriente" class="section-link">Explorar negócios <span aria-hidden="true">→</span></a>
+        </div>
+        <div id="businesses-grid" class="business-grid"></div>
+      </div>
+    </section>
+
+    <section class="container home-section join-section">
+      <div class="section-heading">
+        <div><p class="eyebrow">A tua experiência tem valor</p><h2>Faz parte da comunidade</h2></div>
+      </div>
+      <div class="join-grid">
+        <article class="join-card join-recommender">
+          <span class="join-kicker">PARA QUEM RECOMENDA</span>
+          <h3>Transforma confiança em valor.</h3>
+          <p>Cria a tua página, reúne as tuas recomendações e acompanha cliques, vendas e comissões.</p>
+          <a href="profile.html?u=rita-nogueira" class="btn btn-primary">Criar a minha página <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="join-card join-business">
+          <span class="join-kicker">PARA NEGÓCIOS LOCAIS</span>
+          <h3>Cresce com quem já acredita em ti.</h3>
+          <p>Só pagas comissão quando há uma venda. Acompanha as recomendações e os resultados num só lugar.</p>
+          <a href="dashboard.html?view=business" class="btn btn-secondary">Registar o meu negócio <span aria-hidden="true">→</span></a>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>Recomendadores — pagamentos processados manualmente nesta fase.</span>
+      <span>Comissão de 5% · janela de reembolso de 30 dias</span>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { store } from "./js/store.js";
+    import { formatEur } from "./js/ui.js";
+
+    const grid = document.getElementById("businesses-grid");
+    grid.innerHTML = store.listBusinesses().map((b) => `
+      <a href="business.html?b=${b.slug}" class="business-card">
+        <div class="business-card-top"><span class="business-category">${b.category}</span><span class="business-arrow" aria-hidden="true">↗</span></div>
+        <div class="business-card-content">
+          <span class="business-city">${b.city}</span>
+          <h3>${b.name}</h3>
+          <p>${b.tagline}</p>
+        </div>
+        <div class="business-card-bottom"><span>${b.productShort}</span><strong>${formatEur(b.priceEur)}</strong></div>
+      </a>
+    `).join("");
+  </script>
+</body>
+</html>

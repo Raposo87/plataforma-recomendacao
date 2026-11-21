@@ -1,0 +1,110 @@
+<!-- public/register.html -->
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro — RecomendaPT</title>
+  <link rel="stylesheet" href="css/token.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <a href="index.html" class="brand"><span class="brand-mark">R</span><span>RecomendaPT</span></a>
+      <div class="nav-actions">
+        <a href="login.html" class="btn btn-ghost btn-sm">Já tenho conta</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container" style="max-width:480px;">
+      <div class="card card-pad">
+        <h1 style="margin:0 0 0.35rem;font-size:var(--text-2xl);">Criar conta</h1>
+        <p class="text-secondary" style="margin:0 0 1.5rem;font-size:var(--text-sm);">Escolhe o teu perfil inicial. Na Fase 2 este formulário ligará a <code>POST /api/auth/register</code>.</p>
+
+        <form id="register-form" novalidate style="display:flex;flex-direction:column;gap:1rem;">
+          <div class="field">
+            <label for="role">Tipo de conta</label>
+            <select id="role" name="role" class="select">
+              <option value="recommender">Quero recomendar</option>
+              <option value="business">Tenho uma empresa</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="name">Nome completo ou da empresa</label>
+            <input id="name" name="name" type="text" class="input" required />
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" class="input" required />
+          </div>
+
+          <div class="field">
+            <label for="password">Password (mín. 8 caracteres)</label>
+            <input id="password" name="password" type="password" class="input" minlength="8" required />
+          </div>
+
+          <div class="field">
+            <label for="confirmPassword">Confirmar password</label>
+            <input id="confirmPassword" name="confirmPassword" type="password" class="input" required />
+          </div>
+
+          <label style="display:flex;gap:0.5rem;align-items:flex-start;font-size:var(--text-xs);color:var(--text-secondary);">
+            <input id="terms" type="checkbox" required style="margin-top:0.2rem;" />
+            <span>Aceito os Termos e Condições, a Política de Privacidade (RGPD) e a Política de Comissões.</span>
+          </label>
+
+          <label style="display:flex;gap:0.5rem;align-items:flex-start;font-size:var(--text-xs);color:var(--text-secondary);">
+            <input id="trackingConsent" type="checkbox" style="margin-top:0.2rem;" />
+            <span>Consinto o registo de métricas de atribuição e cookies não essenciais conforme a política aplicável.</span>
+          </label>
+
+          <div id="form-error" class="form-error"></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;">Continuar para o Dashboard</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { showToast } from "./js/ui.js";
+    const params = new URLSearchParams(location.search);
+    const roleSelect = document.getElementById("role");
+    if (params.get("role") === "business") roleSelect.value = "business";
+
+    document.getElementById("register-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const err = document.getElementById("form-error");
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const pw = document.getElementById("password").value;
+      const cpw = document.getElementById("confirmPassword").value;
+      const terms = document.getElementById("terms").checked;
+
+      if (!name || !email.includes("@")) {
+        err.textContent = "Preenche um nome e um email válido.";
+        return;
+      }
+      if (pw.length < 8 || pw !== cpw) {
+        err.textContent = "A password deve ter pelo menos 8 caracteres e coincidir com a confirmação.";
+        return;
+      }
+      if (!terms) {
+        err.textContent = "É necessário aceitar os termos e a política de privacidade.";
+        return;
+      }
+
+      err.textContent = "";
+      showToast("Conta criada no protótipo — a redirecionar...");
+      setTimeout(() => {
+        window.location.href = `dashboard.html?view=${roleSelect.value}`;
+      }, 450);
+    });
+  </script>
+</body>
+</html>

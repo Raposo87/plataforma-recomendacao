@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rita Nogueira — Recomendadores</title>
+  <link rel="stylesheet" href="css/token.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <a href="index.html" class="brand">Recomendadores</a>
+      <nav class="nav-right">
+        <a href="index.html#negocios">Negócios</a>
+        <a href="dashboard.html?view=recommender">O meu painel</a>
+        <a href="index.html">Sair</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="max-width:720px;padding-block:3rem;">
+    <div id="profile-root"></div>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>Recomendadores — pagamentos processados manualmente nesta fase.</span>
+      <span>Comissão fixa de 5% · janela de reembolso de 30 dias</span>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { store } from "./js/store.js";
+    import { formatEur } from "./js/ui.js";
+
+    const params = new URLSearchParams(location.search);
+    const rec = store.getRecommender(params.get("u") || "rita-nogueira");
+    document.title = `${rec.name} — Recomendadores`;
+
+    document.getElementById("profile-root").innerHTML = `
+      <div style="display:flex;gap:1.25rem;align-items:flex-start;margin-bottom:1.5rem;">
+        <span class="avatar avatar-lg">${rec.initials}</span>
+        <div>
+          <h1 style="font-size:1.75rem;margin:0 0 0.25rem;">${rec.name}</h1>
+          <p class="text-secondary" style="margin:0 0 0.45rem;">${rec.bio}</p>
+          <div class="text-muted" style="font-size:0.75rem;">${rec.location} · ${rec.recommendations.length} negócios recomendados</div>
+        </div>
+      </div>
+
+      <p class="text-secondary" style="font-size:0.8125rem;border-top:1px solid var(--border-subtle);padding-top:1rem;margin-bottom:1.5rem;">
+        Tudo o que está aqui foi usado por ${rec.name.split(" ")[0]}. Se comprares por estes links pagas o preço normal — a comissão de 5% sai da margem do negócio.
+      </p>
+
+      <div style="display:flex;flex-direction:column;gap:1.1rem;">
+        ${rec.recommendations.map((r) => `
+          <article class="card card-pad">
+            <blockquote class="serif" style="margin:0 0 1rem;font-size:1.15rem;line-height:1.45;">
+              “${r.quote}”
+            </blockquote>
+            <div style="border-top:1px solid var(--border-subtle);padding-top:0.85rem;display:flex;justify-content:space-between;align-items:flex-end;gap:1rem;flex-wrap:wrap;">
+              <div>
+                <div class="text-muted" style="font-size:0.75rem;">${r.category} · ${r.city}</div>
+                <div class="serif" style="font-size:1.15rem;">${r.businessName}</div>
+                <div class="text-secondary" style="font-size:0.8125rem;">${r.offerTitle} · <strong class="tabular" style="color:var(--text-primary);">${formatEur(r.offerPriceEur)}</strong></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:0.85rem;">
+                <a href="business.html?b=${r.businessSlug}" class="text-secondary link-underline" style="font-size:0.8125rem;">Ver negócio</a>
+                <a href="business.html?b=${r.businessSlug}&ref=${rec.handle}" class="btn btn-primary">Comprar com esta recomendação</a>
+              </div>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+
+      <p class="text-muted" style="font-size:0.8125rem;margin-top:1.75rem;">
+        Também recomendas sítios por onde já passaste? <a href="register.html" class="link-underline" style="color:var(--text-primary);">Cria a tua página.</a>
+      </p>
+    `;
+  </script>
+</body>
+</html>

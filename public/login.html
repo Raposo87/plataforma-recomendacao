@@ -1,0 +1,70 @@
+<!-- public/login.html -->
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — RecomendaPT</title>
+  <link rel="stylesheet" href="css/token.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body>
+  <header class="navbar">
+    <div class="container navbar-inner">
+      <a href="index.html" class="brand"><span class="brand-mark">R</span><span>RecomendaPT</span></a>
+      <div class="nav-actions">
+        <a href="register.html" class="btn btn-primary btn-sm">Criar conta</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container" style="max-width:420px;">
+      <div class="card card-pad">
+        <h1 style="margin:0 0 0.35rem;font-size:var(--text-2xl);">Entrar</h1>
+        <p class="text-secondary" style="margin:0 0 1.5rem;font-size:var(--text-sm);">Acede à tua conta (ligação a <code>POST /api/auth/login</code> na Fase 2).</p>
+
+        <form id="login-form" novalidate style="display:flex;flex-direction:column;gap:1rem;">
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" type="email" class="input" value="mariana.costa@exemplo.pt" required />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" class="input" value="••••••••••••" required />
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;font-size:var(--text-xs);">
+            <label style="display:flex;gap:0.4rem;align-items:center;color:var(--text-secondary);">
+              <input id="keepSession" type="checkbox" checked />
+              <span>Manter sessão</span>
+            </label>
+            <button type="button" id="forgot-btn" class="text-secondary" style="text-decoration:underline;">Recuperar password</button>
+          </div>
+          <div id="login-error" class="form-error"></div>
+          <button type="submit" class="btn btn-primary" style="width:100%;">Entrar</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { showToast } from "./js/ui.js";
+    document.getElementById("forgot-btn").addEventListener("click", () => {
+      showToast("Na Fase 2 será enviado um email de recuperação seguro.");
+    });
+    document.getElementById("login-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const pw = document.getElementById("password").value;
+      const err = document.getElementById("login-error");
+      if (!email.includes("@") || !pw) {
+        err.textContent = "Introduz o email e a password.";
+        return;
+      }
+      err.textContent = "";
+      window.location.href = "dashboard.html";
+    });
+  </script>
+</body>
+</html>
