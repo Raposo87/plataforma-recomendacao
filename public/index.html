@@ -13,7 +13,10 @@
   <header class="navbar home-navbar">
     <div class="container navbar-inner">
       <a href="index.html" class="brand home-brand"><span class="brand-mark">R</span><span>Recomendadores</span></a>
-      <nav class="nav-right">
+      <button class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="primary-navigation">
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav-right" id="primary-navigation">
         <a href="#negocios">Negócios</a>
         <a href="login.html">Entrar</a>
         <a href="register.html" class="btn btn-primary btn-sm">Criar conta <span aria-hidden="true">→</span></a>
@@ -149,6 +152,28 @@
         <div class="business-card-bottom"><span>${b.productShort}</span><strong>${formatEur(b.priceEur)}</strong></div>
       </a>
     `).join("");
+
+    const menuToggle = document.querySelector(".menu-toggle");
+    const navigation = document.getElementById("primary-navigation");
+
+    function setMenuOpen(isOpen) {
+      menuToggle.setAttribute("aria-expanded", String(isOpen));
+      menuToggle.setAttribute("aria-label", isOpen ? "Fechar menu" : "Abrir menu");
+      menuToggle.classList.toggle("is-open", isOpen);
+      navigation.classList.toggle("is-open", isOpen);
+    }
+
+    menuToggle.addEventListener("click", () => {
+      setMenuOpen(menuToggle.getAttribute("aria-expanded") !== "true");
+    });
+
+    navigation.addEventListener("click", (event) => {
+      if (event.target.closest("a")) setMenuOpen(false);
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    });
   </script>
 </body>
 </html>
